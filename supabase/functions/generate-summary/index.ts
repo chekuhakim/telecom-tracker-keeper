@@ -19,29 +19,30 @@ serve(async (req) => {
     ${JSON.stringify(sites)}
     Keep the summary concise and focus on actionable insights.`
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
+        'x-goog-api-key': Deno.env.get('GEMINI_API_KEY') || '',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a helpful assistant that generates summaries of telecommunications site data.' },
-          { role: 'user', content: prompt }
-        ],
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
       }),
     })
 
     const data = await response.json()
-    const generatedText = data.choices[0].message.content
+    const generatedText = data.candidates[0].content.parts[0].text
 
     return new Response(
       JSON.stringify({ generatedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Error in generate-summary function:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
