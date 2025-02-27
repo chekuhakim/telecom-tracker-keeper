@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { Site } from "@/types/database.types";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Index = () => {
         .select("*");
       
       if (error) throw error;
-      return data;
+      return data as Site[];
     },
   });
 
